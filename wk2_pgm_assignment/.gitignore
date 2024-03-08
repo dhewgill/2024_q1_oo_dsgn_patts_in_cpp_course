@@ -1,0 +1,7 @@
+*/.objs
+*.o
+*.d
+.vscode
+*/main
+**/main
+*.zip
