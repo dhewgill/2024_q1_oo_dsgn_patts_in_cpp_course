@@ -1,0 +1,64 @@
+/* Class Pair has already been declared
+ * as shown in the following comments:
+ *
+ * class Pair {
+ * public:
+ *   int *pa,*pb;
+ *   Pair(int, int);
+ *   Pair(const Pair &);
+ *  ~Pair();
+ * };
+ *
+ * Implement its member functions below.
+ */
+ // Pair constructor.
+ Pair::Pair(int a, int b) {
+   std::cout << this << ": Called constructor." << std::endl;
+   pa = new int(a);
+   pb = new int(b);
+ }
+
+ // Pair copy constructor.
+ Pair::Pair(const Pair &other){
+   std::cout << this << ": Called copy constructor!" << std::endl;
+   pa = new int(*other.pa);
+   pb = new int(*other.pb);
+ }
+
+ //Pair destructor.
+ Pair::~Pair() {
+   std::cout << this <<": Destroying pa." << std::endl;
+   delete pa;
+   pa = nullptr;
+
+   std::cout << this << ": Destroying pb." << std::endl;
+   delete pb;
+   pb = nullptr;
+ }
+
+ 
+ /* Here is a main() function you can use
+  * to check your implementation of the
+  * class Pair member functions.
+  */
+  
+int main() {
+  Pair p(15,16);
+  std::cout << "p.pa = " << p.pa << "; p.pb = " << p.pb << std::endl;
+  std::cout << "*p.pa = " << *p.pa << "; *p.pb = " << *p.pb << std::endl;
+  
+  Pair q(p); // <-- calls the copy constructor.
+  std::cout << "q.pa = " << q.pa << "; q.pb = " << q.pb << std::endl;
+  std::cout << "*q.pa = " << *q.pa << "; *q.pb = " << *q.pb << std::endl;
+  
+  Pair *hp = new Pair(23,42);
+  std::cout << "hp->pa = " << hp->pa << "; hp->pb = " << hp->pb << std::endl;
+  std::cout << "*hp->pa = " << *hp->pa << "; *hp->pb = " << *hp->pb << std::endl;
+  delete hp;
+  std::cout << "hp->pa = " << hp->pa << "; hp->pb = " << hp->pb << std::endl;
+  
+  std::cout << "If this message is printed,"
+    << " at least the program hasn't crashed yet!\n"
+    << "But you may want to print other diagnostic messages too." << std::endl;
+  return 0;
+}
