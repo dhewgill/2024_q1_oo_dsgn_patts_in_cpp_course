@@ -67,9 +67,28 @@ PNG grayscale(PNG image) {
  * @return The image with a spotlight.
  */
 PNG createSpotlight(PNG image, int centerX, int centerY) {
+  double euclDist, lumScale;
+
+  // Loop through all of the source image pixels.
+  for (unsigned x = 0; x < image.width(); x++) {
+    for (unsigned y = 0; y < image.height(); y++) {
+      HSLAPixel & pixel = image.getPixel(x, y);
+
+      // Calculate the Euclidean distance from the center pixel to this one.
+      // Cast x and y to int before subtraction to avoid signed/unsigned overflow issues.
+      euclDist = sqrt( pow((centerX - (int) x), 2) + pow((centerY - (int) y), 2) );
+
+      if (euclDist <= 160.0) {
+        lumScale = 1.0 - (0.005 * euclDist);
+      } else {
+        lumScale = 0.2;
+      }
+
+      pixel.l = pixel.l * lumScale;
+    }
+  }
 
   return image;
-  
 }
  
 
@@ -84,6 +103,28 @@ PNG createSpotlight(PNG image, int centerX, int centerY) {
  * @return The illinify'd image.
 **/
 PNG illinify(PNG image) {
+  const double illiniOrange = 11;
+  const double illiniBlue = 216;
+  const double maxHue = 360;
+
+  // Find the midpoints between the blue and orange. We can select how
+  // to assign the new hue based on which side of these midpoints the given
+  // hue lands. Remember that hue is on a circle divided into 360 degrees!
+  const double midLo = (illiniOrange + illiniBlue) / 2; // 113.5
+  const double midHi = (illiniBlue + illiniOrange + maxHue) / 2; // 293.5
+  
+  // Loop through all of the source image pixels.
+  for (unsigned x = 0; x < image.width(); x++) {
+    for (unsigned y = 0; y < image.height(); y++) {
+      HSLAPixel & pixel = image.getPixel(x, y);
+      
+      if ( (pixel.h <= midLo) || (pixel.h > midHi) ) {
+        pixel.h = illiniOrange;
+      } else {
+        pixel.h = illiniBlue;
+      }
+    }
+  }
 
   return image;
 }
@@ -102,6 +143,35 @@ PNG illinify(PNG image) {
 * @return The watermarked image.
 */
 PNG watermark(PNG firstImage, PNG secondImage) {
+  unsigned maxX, maxY;
+
+  if (firstImage.width() > secondImage.width()) {
+    maxX = firstImage.width();
+  } else {
+    maxX = secondImage.width();
+  }
+
+  if (firstImage.height() > secondImage.height()) {
+    maxY = firstImage.height();
+  } else {
+    maxY = secondImage.height();
+  }
+
+  // Loop through all of the source image pixels.
+  for (unsigned x = 0; x < maxX; x++) {
+    for (unsigned y = 0; y < maxY; y++) {
+      HSLAPixel & firstPixel = firstImage.getPixel(x, y);
+      HSLAPixel & secondPixel = secondImage.getPixel(x, y);
+      
+      if (secondPixel.l == 1.0) {
+        if (firstPixel.l <= 0.8) {
+          firstPixel.l = firstPixel.l + 0.2;
+        } else {
+          firstPixel.l = 1.0;
+        }
+      }
+    }
+  }
 
   return firstImage;
 }
